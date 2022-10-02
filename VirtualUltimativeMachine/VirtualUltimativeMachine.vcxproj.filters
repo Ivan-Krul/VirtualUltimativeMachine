@@ -18,9 +18,15 @@
     <ClCompile Include="VirtualUltimativeMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IntPreLaunch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Define.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IntPreLaunch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

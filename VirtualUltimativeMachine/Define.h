@@ -10,3 +10,8 @@ static std::ofstream fout;
 #define CLOG fout
 #endif
 
+__interface ISaveLoad
+{
+	void save(std::string dir_);
+	void load(std::string dir_);
+};
