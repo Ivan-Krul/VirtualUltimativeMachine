@@ -1,6 +1,14 @@
 #include <iostream>
-
+#include "Window.h"
 int main()
 {
-    std::cout << "Hello World!\n";
+    Window w(60,30);
+    for(int i = 0; i < 20000; i++)
+    {
+        for(int x = 0; x < w.siize(); x++)
+        {
+            w[x] = rand();
+        }
+        w.update();
+    }
 }
