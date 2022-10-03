@@ -1,6 +1,8 @@
 #pragma once
+#include <string>
 class Launcher
 {
-	void decode();
+public:
+
 };
 
