@@ -17,6 +17,8 @@ Window::Window()
 	_CPscreenbuffer = new char[_Sresolution.X * _Sresolution.Y + 1];
 	_CPscreenbuffer[_Sresolution.X * _Sresolution.Y] = '\0';
 	memset(_CPscreenbuffer, ' ', _UIsizebuffer);
+	_Hconsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+	SetConsoleActiveScreenBuffer(_Hconsole);
 }
 
 void Window::insert(std::string Sstr_, COORD Swhere_)
@@ -42,7 +44,12 @@ char &Window::operator[](unsigned int UIindex_)
 
 void Window::update()
 {
-	WriteConsoleOutputCharacterA(NULL, _CPscreenbuffer, _UIsizebuffer, { 0, 0 }, NULL);
+	WriteConsoleOutputCharacterA(_Hconsole, _CPscreenbuffer, _UIsizebuffer, {0, 0}, &_UIbyteswritten);
+}
+
+COORD Window::size()
+{
+	return _Sresolution;
 }
 
 Window::~Window()
