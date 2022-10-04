@@ -78,7 +78,7 @@ void AssembleAlphabet::save(std::string Sdir_)
 			<--
 		<--
 	*/
-	char CMbuffer[256];
+	char CMbuffer[1];
 	std::ofstream Fout;
 	Fout.open(Sdir_,std::ios::binary);
 	CMbuffer[0] = _Mdecoder.size() - 1;
@@ -105,31 +105,41 @@ void AssembleAlphabet::save(std::string Sdir_)
 
 std::string AssembleAlphabet::decode(unsigned char UCc_)
 {
-	return std::string();
-}
-
-unsigned char AssembleAlphabet::args(unsigned char UCc_)
-{
-	return 0;
-}
-
-unsigned char AssembleAlphabet::args(std::string Sstr_)
-{
-	return 0;
+	for(auto &i : _Mdecoder)
+	{
+		if(i.first.first == UCc_)
+			return i.second;
+	}
+	return "";
 }
 
 char AssembleAlphabet::typedata(unsigned char UCc_)
 {
-	return 0;
+	return _Mtypedata.find(UCc_)->second;
 }
 
 unsigned char AssembleAlphabet::typedata(char Csym_)
 {
+	return _Mtypedata.find(Csym_)->first;
+}
+
+unsigned char AssembleAlphabet::encodee(std::string Sstr_)
+{
+	for(auto &i : _Mdecoder)
+	{
+		if(i.second == Sstr_)
+			return i.first.first;
+	}
 	return 0;
 }
 
-unsigned char AssembleAlphabet::encode(std::string Sstr_)
+unsigned char AssembleAlphabet::encodea(std::string Sstr_)
 {
+	for(auto &i : _Mdecoder)
+	{
+		if(i.second == Sstr_)
+			return i.first.second;
+	}
 	return 0;
 }
 
