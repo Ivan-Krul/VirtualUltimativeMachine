@@ -67,9 +67,10 @@ char &Window::operator[](unsigned int UIindex_)
 	return _CPscreenbuffer[UIindex_];
 }
 
-void Window::update()
+void Window::update(COORD Scurpos_)
 {
-	WriteConsoleOutputCharacterA(_Hconsole, _CPscreenbuffer, _UIsizebuffer, {0, 0}, &_UIbyteswritten);
+	_Scurpos = Scurpos_;
+	WriteConsoleOutputCharacterA(_Hconsole, _CPscreenbuffer, _UIsizebuffer, _Scurpos, &_UIbyteswritten);
 }
 
 COORD Window::size()
