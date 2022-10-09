@@ -15,9 +15,19 @@ void TextEditor::_curmovevert(char Cdelta_)
 
 void TextEditor::_curmovehors(char Cdelta_)
 {
+	short SnextposY = _Scurpos.Y;
 	short SnextposX = _Scurpos.X + Cdelta_;
-
-	while()
+	if(SnextposX < 0)
+	{
+		SnextposY--;
+		SnextposX = _VStext[SnextposY].size() + SnextposX;
+	}
+	else if(!(SnextposX < _VStext[SnextposY].size()))
+	{
+		SnextposX -= _VStext[SnextposY].size();
+		SnextposY++;
+	}
+	_Scurpos = { SnextposX, SnextposY };
 }
 
 void TextEditor::swap(char Cch_)
@@ -64,4 +74,14 @@ void TextEditor::curdown(unsigned char UCdelta_)
 void TextEditor::curup(unsigned char UCdelta_)
 {
 	_curmovevert(UCdelta_);
+}
+
+void TextEditor::curleft(unsigned char UCdelta_)
+{
+	_curmovehors(-UCdelta_);
+}
+
+void TextEditor::curright(unsigned char UCdelta_)
+{
+	_curmovehors(UCdelta_);
 }
