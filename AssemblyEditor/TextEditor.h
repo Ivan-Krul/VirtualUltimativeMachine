@@ -18,5 +18,6 @@ public:
 	void curup(unsigned char UCdelta_);
 	void curleft(unsigned char UCdelta_);
 	void curright(unsigned char UCdelta_);
+	char getchar(unsigned int UIy_, unsigned int UIx_);
 };
 

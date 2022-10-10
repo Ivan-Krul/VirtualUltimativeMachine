@@ -76,6 +76,11 @@ void TextEditor::curup(unsigned char UCdelta_)
 	_curmovevert(UCdelta_);
 }
 
+char TextEditor::getchar(unsigned int UIy_, unsigned int UIx_)
+{
+	return _VStext[UIy_][UIx_];
+}
+
 void TextEditor::curleft(unsigned char UCdelta_)
 {
 	_curmovehors(-UCdelta_);
