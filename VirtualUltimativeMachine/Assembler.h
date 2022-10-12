@@ -2,10 +2,13 @@
 	Assembler x86 32-bit
 
 	typedata:
-		$ - address memory
-		# - int (unsigned)
-		I - int (signed)
-		f - float
+		$ - 0b101 - registers
+		# - 0b110 - address memory
+		U - 0b000 - int (unsigned)
+		I - 0b001 - int (signed)
+		H - 0b010 - hex int (unsigned)
+		B - 0b011 - binary int (unsigned)
+		F - 0b100 - float
 
 */
 #pragma once
@@ -13,6 +16,15 @@
 #include <list>
 class Assembler
 {
+private:
+	Assembler() = default;
+	~Assembler() = default;
+	Assembler(const Assembler &) = delete;
+	Assembler &operator= (const Assembler &) = delete;
+	void *operator new(std::size_t) = delete;
+	void *operator new[](std::size_t) = delete;
+	void operator delete(void *) = delete;
+	void operator delete[](void *) = delete;
 public:
 	struct Command
 	{
@@ -20,17 +32,15 @@ public:
 		unsigned char UCregex;
 		unsigned char UCargs;
 	};
-	struct Operator
-	{
-		char Cchar;
-		unsigned char UCregex;
-	};
 private:
-	static std::list<Command> _LCcommands;
+	static std::list<Command> _LCcommandsS;
 	
+public:
+	Assembler &getinst();
+	void decode(std::string Sdir_);
 };
 
-std::list<Assembler::Command> Assembler::_LCcommands = {
+std::list<Assembler::Command> Assembler::_LCcommandsS = {
 	{"NOP"	 , 0xea, 0}, // no operations
 	{"JMP"	 , 0x20, 1}, // jump to the flag, what marked by "FLAG"
 	{"JZ"	 , 0x21, 2}, // jump if is zero
@@ -41,10 +51,10 @@ std::list<Assembler::Command> Assembler::_LCcommands = {
 	{"JNE"	 , 0x26, 3}, // reverse JE
 	{"LD"	 , 0x11, 2}, // load from memory to register
 	{"ST"	 , 0x12, 2}, // set from register to memory
-	{"LDI"	 , 0x11, 2}, // same as from LD, but there load a variable
-	{"STI"	 , 0x12, 2}, // same as from ST, but there load a variable
-	{"SW"	 , 0x12, 2}, // swap
-	{"MOV"	 , 0x10, 2}, // move from one register to another
+	{"LDI"	 , 0x13, 2}, // same as from LD, but there load a variable
+	{"STI"	 , 0x14, 2}, // same as from ST, but there load a variable
+	{"SW"	 , 0x15, 2}, // swap
+	{"MOV"	 , 0x30, 2}, // move from one register to another
 	{"ADD"	 , 0x04, 2}, // next commands i'll be basic for alu
 	{"SUB"	 , 0x05, 2}, 
 	{"MUL"	 , 0x06, 2},

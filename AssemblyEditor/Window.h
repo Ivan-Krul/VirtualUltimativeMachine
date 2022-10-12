@@ -14,7 +14,6 @@ public:
 	void resizeconsole(short Sx_, short Sy_);
 	Window();
 	Window(short USx_, short USy_);
-	Window(const Window &) = default;
 	void insert(std::string Sstr_, COORD Swhere_);
 	void insert(char Cch_, COORD Swhere_);
 	char &operator[](unsigned int UIindex_);
