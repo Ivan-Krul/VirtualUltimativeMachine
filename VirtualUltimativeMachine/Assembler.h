@@ -1,17 +1,27 @@
 /*
 	Assembler x86 32-bit
 
+	[(typedata)(indetef of register(if it register, else 0))(scale (if it register, else 0))]
 	typedata:
-		$ - 0b101 - registers
-		# - 0b110 - address memory
-		U - 0b000 - int (unsigned)
-		I - 0b001 - int (signed)
-		H - 0b010 - hex int (unsigned)
-		B - 0b011 - binary int (unsigned)
-		F - 0b100 - float
+		$ - 0b10 - registers
+		# - 0b11 - address memory
+		U - 0b00 - int (unsigned)
+		F - 0b01 - float
+	registers
+		we have:
+			A - 0b00
+			B - 0b01
+			C - 0b10
+			D - 0b11
+	scale (for example reg A):
+		AL  - 0b0000
+		AH  - 0b0001
+		AX  - 0b0010
+		eAX - 0b0110
 
 */
 #pragma once
+#define MASK_ARG_TYPEDATA	0b11
 #include <fstream>
 #include <list>
 class Assembler
@@ -33,8 +43,7 @@ public:
 		unsigned char UCargs;
 	};
 private:
-	static std::list<Command> _LCcommandsS;
-	
+	static std::list<Command> _LCcommandsS; 
 public:
 	Assembler &getinst();
 	void decode(std::string Sdir_);
@@ -59,10 +68,14 @@ std::list<Assembler::Command> Assembler::_LCcommandsS = {
 	{"SUB"	 , 0x05, 2}, 
 	{"MUL"	 , 0x06, 2},
 	{"DIV"	 , 0x07, 2}, 
-	{"AND"	 , 0x08, 2}, 
-	{"NOT"	 , 0x09, 2},
-	{"OR"	 , 0x0a, 2},
-	{"XOR"	 , 0x0b, 2}, 
+	{"ADDF"	 , 0x08, 2},
+	{"SUBF"	 , 0x09, 2},
+	{"MULF"	 , 0x0a, 2},
+	{"DIVF"	 , 0x0b, 2},
+	{"AND"	 , 0x0c, 2}, 
+	{"NOT"	 , 0x0d, 2},
+	{"OR"	 , 0x0e, 2},
+	{"XOR"	 , 0x0f, 2}, 
 	{"FLAG"	 , 0x13, 2}, // mark place of command for returning as index
 	{"SCAN"	 , 0x14, 2}, // scan a pointed sector of disk and write in pointed memory address
 	{"PRINT" , 0x14, 2}, // put to a pointed sector of disk and write from pointed memory address
