@@ -6,6 +6,21 @@ Assembler &Assembler::getinst()
 	return obj;
 }
 
+bool Assembler::isletter(char letter_)
+{
+	return (letter_-65)<26 || (letter_-97)<26;
+}
+
+bool Assembler::isaddictsym(char char_)
+{
+	return !(isletter(char_) || isnumber(char_));
+}
+
+bool Assembler::isnumber(char number_)
+{
+	return (number_-48)<10;
+}
+
 void Assembler::decode(std::string Sdir_)
 {
 	/*
@@ -98,4 +113,32 @@ void Assembler::decode(std::string Sdir_)
 	}
 	Fin.close();
 	Fout.close();
+}
+
+void Assembler::compile(std::string dir_)
+{
+	std::ifstream fin;
+	std::ofstream fout;
+	char *buffer;
+	fin.open(dir_);
+	fout.open(dir_ + ".bin", std::ios::binary);
+	while(!fin.eof())
+	{
+		fin.read(buffer, 6);
+		buffer[5] = '\0';
+		for(int i = 0; isletter(buffer[i]); i++)
+			if(!isletter(buffer[i + 1]))
+				buffer[i + 1] = '\0';
+		for(auto &iter : _LCcommandsS)
+		{
+			if(iter.CMname != buffer) continue;
+			fout.write((const char *)iter.UCregex, 1);
+			for(int i = 0; i < iter.UCargs; i++)
+			{
+
+			}
+		}
+	}
+	fin.close();
+	fout.close();
 }

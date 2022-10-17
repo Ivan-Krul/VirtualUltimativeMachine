@@ -46,7 +46,11 @@ private:
 	static std::list<Command> _LCcommandsS; 
 public:
 	Assembler &getinst();
+	bool isletter(char letter_);
+	bool isaddictsym(char char_);
+	bool isnumber(char number_);
 	void decode(std::string Sdir_);
+	void compile(std::string dir_);
 };
 
 std::list<Assembler::Command> Assembler::_LCcommandsS = {
