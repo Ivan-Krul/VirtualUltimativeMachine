@@ -17,7 +17,7 @@
 		AL  - 0b0000
 		AH  - 0b0001
 		AX  - 0b0010
-		eAX - 0b0110
+		eAX - 0b0011
 
 */
 #pragma once

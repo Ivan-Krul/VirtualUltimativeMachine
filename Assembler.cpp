@@ -29,9 +29,9 @@ void Assembler::decode(std::string Sdir_)
 		[] - byte
 		[word or command](if it have an arguments)[typedata|regindef|][value](it it's two or more)[typedata][value]
 	*/
-	const static char regscaleH = 0b001;
-	const static char regscaleX = 0b010;
-	const static char regescaleX= 0b110;
+	const static char regscaleH = 0b01;
+	const static char regscaleX = 0b10;
+	const static char regescaleX= 0b11;
 	char *CPbuffer;
 	unsigned char UCregex;
 	std::ifstream Fin;
@@ -89,13 +89,13 @@ void Assembler::decode(std::string Sdir_)
 				{
 					// address memory
 					Fin.read(CPbuffer, 4);
-					Fout << '#' << unsigned int(*CPbuffer)<<' ';
+					Fout << '#' << (unsigned int)(*CPbuffer)<<' ';
 				}
 				else if((*CPbuffer & MASK_ARG_TYPEDATA) == 0b00)
 				{
 					// unsigned int
 					Fin.read(CPbuffer, 4);
-					Fout << unsigned int(*CPbuffer)<<' ';
+					Fout << (unsigned int)(*CPbuffer)<<' ';
 				}
 				else if((*CPbuffer & MASK_ARG_TYPEDATA) == 0b01)
 				{
@@ -119,23 +119,39 @@ void Assembler::compile(std::string dir_)
 {
 	std::ifstream fin;
 	std::ofstream fout;
-	char *buffer;
+	std::string buffer;
 	fin.open(dir_);
 	fout.open(dir_ + ".bin", std::ios::binary);
 	while(!fin.eof())
 	{
-		fin.read(buffer, 6);
-		buffer[5] = '\0';
-		for(int i = 0; isletter(buffer[i]); i++)
-			if(!isletter(buffer[i + 1]))
-				buffer[i + 1] = '\0';
+		fin >> buffer;
 		for(auto &iter : _LCcommandsS)
 		{
 			if(iter.CMname != buffer) continue;
 			fout.write((const char *)iter.UCregex, 1);
 			for(int i = 0; i < iter.UCargs; i++)
 			{
-
+				fin >> buffer;
+				std::string value(buffer.begin()+1,buffer.end());
+				if(buffer[0] == '$')
+				{
+					// we have a deal with register
+					char type;
+					char symbol;
+					if(value[0] == 'e' && value[2] == 'X')
+					{
+						type = value[1];
+						symbol = 0b10;
+						symbol += type - 65;
+						symbol += 0b00110000;
+						continue;
+					}
+					else type = value[0];
+					if(value[1] == 'X')
+					{
+						
+					}
+				}
 			}
 		}
 	}
