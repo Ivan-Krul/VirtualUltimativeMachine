@@ -24,6 +24,7 @@
 #define MASK_ARG_TYPEDATA	0b11
 #include <fstream>
 #include <list>
+#include <string>
 class Assembler
 {
 private:
@@ -44,6 +45,8 @@ public:
 	};
 private:
 	static std::list<Command> _LCcommandsS; 
+	const char * _codetoreg(char value_);
+	unsigned char _regtocode(const char *name_);
 public:
 	Assembler &getinst();
 	bool isletter(char letter_);
