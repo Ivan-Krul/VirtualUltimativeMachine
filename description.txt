@@ -1,0 +1,3 @@
+Virtual machine on 32-bit x86 architecture, where you can made own configuration until 32 bits.
+It's easy to program, just a few command on Assember and you can manipulate with the virtual computer.
+It's would be a minimal colorful display, but I decided to use a console, because it's easy to manipulate.
