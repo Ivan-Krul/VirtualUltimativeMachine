@@ -1,33 +1,41 @@
 #include "Assembler.h"
 
-unsigned char Assembler::_regtocode(const char *name_)
+unsigned char Assembler::_regtocode(char *name_, int size_)
 {
-	return 0;
+	unsigned char res = 0;
+	char type;
+	char scale = 0;
+	if(size_ > 2) type = name_[1];
+	else type = name_[0];
+	if(name_[0] == 'e' && name_[2]=='X') scale = _regescaleX;
+	else if(name_[1] == 'X') scale = _regscaleX;
+	else if(name_[1] == 'H') scale = _regscaleH;
+	res += _typereg;
+	res += (type-65) + (1<<2);
+	res += (scale) + (1<<4);
+	return res;
 }
 
-const char * Assembler::_codetoreg(char value_)
+const char * Assembler::_codetoreg(unsigned char value_)
 {
-	const static char regscaleH = 0b01;
-	const static char regscaleX = 0b10;
-	const static char regescaleX= 0b11;
 	unsigned char indef = (value_ >>= 2) & MASK_ARG_TYPEDATA;
 	unsigned char scale = (value_ >>= 2);
 	char regsym = indef + 65;
 	char registername[5];
 	registername[0] = '$';
-	if(scale == regscaleH)
+	if(scale == _regscaleH)
 	{
 		registername[1] = regsym;
 		registername[2] = 'H';
 		registername[3] = '\0';
 	}
-	else if(scale == regscaleX)
+	else if(scale == _regscaleX)
 	{
 		registername[1] = regsym;
 		registername[2] = 'X';
 		registername[3] = '\0';
 	}
-	else if(scale == regescaleX)
+	else if(scale == _regescaleX)
 	{
 		registername[1] = 'e';
 		registername[2] = regsym;
@@ -67,12 +75,6 @@ bool Assembler::isnumber(char number_)
 
 void Assembler::decode(std::string Sdir_)
 {
-	/*
-		structure of asm
-
-		[] - byte
-		[word or command](if it have an arguments)[typedata|regindef|][value](it it's two or more)[typedata][value]
-	*/
 	char *CPbuffer;
 	unsigned char UCregex;
 	std::ifstream Fin;
@@ -92,33 +94,23 @@ void Assembler::decode(std::string Sdir_)
 			{
 				Fout << '\t';
 				Fin.read(CPbuffer, 1);
-				if((*CPbuffer & MASK_ARG_TYPEDATA) == 0b10)
-				{
-					// register	
-					Fout<<_codetoreg(*CPbuffer);
-				}
-				else if((*CPbuffer & MASK_ARG_TYPEDATA) == 0b11)
-				{
-					// address memory
+				if((*CPbuffer & MASK_ARG_TYPEDATA) == _typereg) Fout<<_codetoreg(*CPbuffer); // register
+				else if((*CPbuffer & MASK_ARG_TYPEDATA) == _typeadmem) // address memory
+				{					
 					Fin.read(CPbuffer, 4);
 					Fout << '#' << (unsigned int)(*CPbuffer);
 				}
-				else if((*CPbuffer & MASK_ARG_TYPEDATA) == 0b00)
+				else if((*CPbuffer & MASK_ARG_TYPEDATA) == _typeint) // unsigned int
 				{
-					// unsigned int
 					Fin.read(CPbuffer, 4);
 					Fout << (unsigned int)(*CPbuffer);
 				}
-				else if((*CPbuffer & MASK_ARG_TYPEDATA) == 0b01)
+				else if((*CPbuffer & MASK_ARG_TYPEDATA) == _typefloat) // float
 				{
-					// float
 					Fin.read(CPbuffer, 4);
 					Fout <<std::dec<< float(*CPbuffer) <<std::hex;
 				}
-				if(arg + 1 != iter.UCargs)
-				{
-					Fout <<", ";
-				}
+				if(arg + 1 != iter.UCargs) Fout <<", ";
 			}							
 		}								
 		Fout << '\n';					
@@ -145,10 +137,29 @@ void Assembler::compile(std::string dir_)
 			{
 				fin >> buffer;
 				std::string value(buffer.begin()+1,buffer.end());
+				if(value[value.size()-1] == ',') value.pop_back();
 				if(buffer[0] == '$')
+					fout.write((char *)_regtocode((char*)buffer.c_str(),buffer.size()),1);
+				else if(buffer[0] == '#')
 				{
-					// we have a deal with register
-					_regtocode(buffer.c_str());
+					fout.write((char*)_typeadmem,1);
+					unsigned int val = std::stoul(value);
+					fout.write((char*)val,4);
+				}
+				else if(buffer[0] == 'U')
+				{
+					unsigned int val = std::stoul(value);
+					fout.write((char*)val,4);
+				}
+				else if(buffer[0] == 'F')
+				{
+					union
+					{
+						float input;
+						int   output;
+					} data;
+					data.input = std::stof(value);
+					fout.write((char*)data.output,4);
 				}
 			}
 		}

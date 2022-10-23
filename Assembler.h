@@ -44,9 +44,18 @@ public:
 		unsigned char UCargs;
 	};
 private:
+	const static char _regscaleH = 0b01;
+	const static char _regscaleX = 0b10;
+	const static char _regescaleX= 0b11;
+
+	const static unsigned char _typereg   = 0b10;
+	const static unsigned char _typeadmem = 0b11;
+	const static unsigned char _typeint   = 0b00;
+	const static unsigned char _typefloat = 0b01;
+
 	static std::list<Command> _LCcommandsS; 
-	const char * _codetoreg(char value_);
-	unsigned char _regtocode(const char *name_);
+	const char * _codetoreg(unsigned char value_);
+	unsigned char _regtocode(char *name_, int size_);
 public:
 	Assembler &getinst();
 	bool isletter(char letter_);
