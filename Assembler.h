@@ -25,18 +25,14 @@
 #include <fstream>
 #include <list>
 #include <string>
+#include <sstream>
 class Assembler
 {
-private:
+public:
 	Assembler() = default;
 	~Assembler() = default;
 	Assembler(const Assembler &) = delete;
 	Assembler &operator= (const Assembler &) = delete;
-	void *operator new(std::size_t) = delete;
-	void *operator new[](std::size_t) = delete;
-	void operator delete(void *) = delete;
-	void operator delete[](void *) = delete;
-public:
 	struct Command
 	{
 		const char *CMname;
@@ -54,10 +50,10 @@ private:
 	const static unsigned char _typefloat = 0b01;
 
 	static std::list<Command> _LCcommandsS; 
-	const char * _codetoreg(unsigned char value_);
+	char * _codetoreg(unsigned char value_);
 	unsigned char _regtocode(char *name_, int size_);
 public:
-	Assembler &getinst();
+	static Assembler &getinst();
 	bool isletter(char letter_);
 	bool isaddictsym(char char_);
 	bool isnumber(char number_);
@@ -97,3 +93,4 @@ std::list<Assembler::Command> Assembler::_LCcommandsS = {
 	{"PRINT" , 0x14, 2}, // put to a pointed sector of disk and write from pointed memory address
 	{"HLT"	 , 0xf4, 0} // halt
 };
+#include "Assembler.cpp"

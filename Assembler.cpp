@@ -10,18 +10,18 @@ unsigned char Assembler::_regtocode(char *name_, int size_)
 	if(name_[0] == 'e' && name_[2]=='X') scale = _regescaleX;
 	else if(name_[1] == 'X') scale = _regscaleX;
 	else if(name_[1] == 'H') scale = _regscaleH;
-	res += _typereg;
-	res += (type-65) + (1<<2);
-	res += (scale) + (1<<4);
+	res += _typereg; // first 2 bits
+	res += (type-'A') * (1<<2); // another 2 bits
+	res += (scale) * (1<<4); // the rest part of bits
 	return res;
 }
 
-const char * Assembler::_codetoreg(unsigned char value_)
+char * Assembler::_codetoreg(unsigned char value_)
 {
 	unsigned char indef = (value_ >>= 2) & MASK_ARG_TYPEDATA;
 	unsigned char scale = (value_ >>= 2);
 	char regsym = indef + 65;
-	char registername[5];
+	char *registername =  new char[5];
 	registername[0] = '$';
 	if(scale == _regscaleH)
 	{
@@ -80,11 +80,17 @@ void Assembler::decode(std::string Sdir_)
 	std::ifstream Fin;
 	std::ofstream Fout;
 	Fin.open(Sdir_, std::ios::binary);
-	Fout.open(Sdir_ + ".asm");
+	if(!Fin.is_open()) 
+	{
+		printf("File isn't detected\n\a");
+		return;
+	}
+	Fout.open(Sdir_);
 	Fout << std::hex;
 	while(!Fin.eof())
 	{
-		Fin.read((char *)UCregex, 1);
+		Fin.read(CPbuffer, 1);
+		UCregex = *CPbuffer;
 		for(auto &iter : _LCcommandsS)
 		{
 			if(iter.UCregex != UCregex) continue;
@@ -125,6 +131,11 @@ void Assembler::compile(std::string dir_)
 	std::ofstream fout;
 	std::string buffer;
 	fin.open(dir_);
+	if(!fin.is_open()) 
+	{
+		printf("File isn't detected\n\a");
+		return;
+	}
 	fout.open(dir_ + ".bin", std::ios::binary);
 	while(!fin.eof())
 	{
@@ -132,36 +143,42 @@ void Assembler::compile(std::string dir_)
 		for(auto &iter : _LCcommandsS)
 		{
 			if(iter.CMname != buffer) continue;
-			fout.write((const char *)iter.UCregex, 1);
+			fout << (char)iter.UCregex;
 			for(int i = 0; i < iter.UCargs; i++)
 			{
 				fin >> buffer;
 				std::string value(buffer.begin()+1,buffer.end());
 				if(value[value.size()-1] == ',') value.pop_back();
 				if(buffer[0] == '$')
-					fout.write((char *)_regtocode((char*)buffer.c_str(),buffer.size()),1);
+					fout<<(char)_regtocode((char*)buffer.c_str(),buffer.size());
 				else if(buffer[0] == '#')
 				{
-					fout.write((char*)_typeadmem,1);
+					fout << (char)_typeadmem;
 					unsigned int val = std::stoul(value);
-					fout.write((char*)val,4);
+					for(int i = 0;i<4;i++)
+						fout << char(val + (1<<i*8)%0x100);
 				}
 				else if(buffer[0] == 'U')
 				{
+					fout << (char)_typeint;
 					unsigned int val = std::stoul(value);
-					fout.write((char*)val,4);
+					for(int i = 0;i<4;i++)
+						fout << char(val + (1<<i*8)%0x100);
 				}
 				else if(buffer[0] == 'F')
 				{
+					fout << (char)_typefloat;
 					union
 					{
 						float input;
 						int   output;
 					} data;
 					data.input = std::stof(value);
-					fout.write((char*)data.output,4);
+					for(int i = 0;i<4;i++)
+						fout << char(data.output + (1<<i*8)%0x100);
 				}
 			}
+			break;
 		}
 	}
 	fin.close();
