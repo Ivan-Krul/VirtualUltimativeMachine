@@ -5,11 +5,11 @@ unsigned char Assembler::_regtocode(char *name_, int size_)
 	unsigned char res = 0;
 	char type;
 	char scale = 0;
-	if(size_ > 2) type = name_[1];
-	else type = name_[0];
-	if(name_[0] == 'e' && name_[2]=='X') scale = _regescaleX;
-	else if(name_[1] == 'X') scale = _regscaleX;
-	else if(name_[1] == 'H') scale = _regscaleH;
+	if(size_ > 2) type = name_[2];
+	else type = name_[1];
+	if(name_[1] == 'e' && name_[3]=='X') scale = _regescaleX;
+	else if(name_[2] == 'X') scale = _regscaleX;
+	else if(name_[2] == 'H') scale = _regscaleH;
 	res += _typereg; // first 2 bits
 	res += (type-'A') * (1<<2); // another 2 bits
 	res += (scale) * (1<<4); // the rest part of bits
@@ -75,12 +75,12 @@ bool Assembler::isnumber(char number_)
 
 void Assembler::decode(std::string Sdir_)
 {
-	char *CPbuffer;
+	char CPbuffer[4];
 	unsigned char UCregex;
 	std::ifstream Fin;
 	std::ofstream Fout;
 	Fin.open(Sdir_, std::ios::binary);
-	if(!Fin.is_open()) 
+	if(!Fin) 
 	{
 		printf("File isn't detected\n\a");
 		return;
@@ -90,7 +90,7 @@ void Assembler::decode(std::string Sdir_)
 	while(!Fin.eof())
 	{
 		Fin.read(CPbuffer, 1);
-		UCregex = *CPbuffer;
+		UCregex = static_cast<unsigned char>(*CPbuffer);
 		for(auto &iter : _LCcommandsS)
 		{
 			if(iter.UCregex != UCregex) continue;
@@ -130,21 +130,23 @@ void Assembler::compile(std::string dir_)
 	std::ifstream fin;
 	std::ofstream fout;
 	std::string buffer;
+	char charbuf[2] = "\1";
 	fin.open(dir_);
-	if(!fin.is_open()) 
+	if(!fin)
 	{
 		printf("File isn't detected\n\a");
 		return;
 	}
-	fout.open(dir_ + ".bin", std::ios::binary);
+	fout.open(dir_ + ".bin");
 	while(!fin.eof())
 	{
 		fin >> buffer;
 		for(auto &iter : _LCcommandsS)
 		{
 			if(iter.CMname != buffer) continue;
-			fout << (char)iter.UCregex;
-			for(int i = 0; i < iter.UCargs; i++)
+			charbuf[0] = iter.UCregex;
+			fout.write(charbuf,sizeof(charbuf));
+			for(int a = 0; a < iter.UCargs; a++)
 			{
 				fin >> buffer;
 				std::string value(buffer.begin()+1,buffer.end());
@@ -154,9 +156,8 @@ void Assembler::compile(std::string dir_)
 				else if(buffer[0] == '#')
 				{
 					fout << (char)_typeadmem;
-					unsigned int val = std::stoul(value);
 					for(int i = 0;i<4;i++)
-						fout << char(val + (1<<i*8)%0x100);
+						fout << value[i] + value[i+1]*16;
 				}
 				else if(buffer[0] == 'U')
 				{
